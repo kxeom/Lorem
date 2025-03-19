@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate, regenerate, and download images from text prompts using our Text2Image tool with a sleek Neobrutalism design.">
+    <meta name="keywords" content="text to image, AI image generator, Neobrutalism, regenerate image, download image, web tool">
+    <meta name="robots" content="index, follow">
+    <title>Text2Image Generator - Neobrutalism Style</title>
+    <link rel="icon" type="image/png" href="https://img1.picmix.com/output/stamp/normal/5/7/9/6/2676975_b9545.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .auto-resize-textarea {
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-mono flex flex-col">
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Header -->
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 text-center mb-8 
+                  border-4 border-black shadow-[8px_8px_0_0_#000] bg-blue-300 p-4">
+            Text2Image Generator
+        </h1>
+
+        <!-- Main Container -->
+        <div class="max-w-3xl mx-auto w-full">
+            <!-- Input Form -->
+            <div class="bg-white p-4 sm:p-6 border-4 border-black shadow-[8px_8px_0_0_#000] 
+                       flex flex-col sm:flex-row gap-4">
+                <textarea 
+                    id="promptInput" 
+                    class="auto-resize-textarea flex-grow p-3 text-base sm:text-lg 
+                          border-2 border-gray-300 focus:outline-none focus:ring-2 
+                          focus:ring-blue-400 bg-white text-gray-800 
+                          placeholder-gray-400 resize-none"
+                    placeholder="Enter your prompt here...">
+                </textarea>
+                <button 
+                    id="generateBtn"
+                    class="sm:w-48 bg-blue-500 text-white font-bold py-3 px-6 
+                          border-4 border-black shadow-[4px_4px_0_0_#000] 
+                          hover:shadow-[2px_2px_0_0_#000] transition-all text-lg sm:text-xl 
+                          flex-shrink-0">
+                    Generate Image
+                </button>
+            </div>
+
+            <!-- Result Container -->
+            <div id="resultContainer" class="mt-8 hidden">
+                <div class="bg-white p-4 sm:p-6 border-4 border-black shadow-[8px_8px_0_0_#000]">
+                    <img id="resultImage" class="w-full max-w-full border-2 border-black" alt="Generated image from text prompt">
+                    <div class="flex justify-between gap-4 mt-4">
+                        <button 
+                            id="downloadBtn"
+                            class="bg-green-500 text-white font-bold py-2 px-4 
+                                  border-2 border-black shadow-[2px_2px_0_0_#000] 
+                                  hover:shadow-[1px_1px_0_0_#000] transition-all text-base hidden">
+                            <i class="fa fa-cloud-download"></i>
+                        </button>
+                        <button 
+                            id="regenerateBtn"
+                            class="bg-orange-500 text-white font-bold py-2 px-4 
+                                  border-2 border-black shadow-[2px_2px_0_0_#000] 
+                                  hover:shadow-[1px_1px_0_0_#000] transition-all text-base hidden">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="status" class="text-gray-800 text-center mt-4 text-base sm:text-lg"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const regenerateBtn = document.getElementById('regenerateBtn');
+        const status = document.getElementById('status');
+
+        let currentPrompt = '';
+
+        // Fungsi untuk auto-resize textarea
+        function adjustTextareaHeight() {
+            promptInput.style.height = 'auto';
+            promptInput.style.height = `${Math.min(promptInput.scrollHeight, 300)}px`;
+        }
+
+        promptInput.addEventListener('input', adjustTextareaHeight);
+        window.addEventListener('load', adjustTextareaHeight);
+
+        // Fungsi generate gambar
+        async function generateImage(prompt) {
+            resultContainer.classList.remove('hidden');
+            resultImage.src = '';
+            resultImage.alt = `Generated image for prompt: ${prompt}`;
+            downloadBtn.classList.add('hidden');
+            regenerateBtn.classList.add('hidden');
+            status.textContent = 'Generating image...';
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            try {
+                const apiUrl = `https://api.ryzendesu.vip/api/ai/text2img?prompt=${encodeURIComponent(prompt)}`;
+                const response = await fetch(apiUrl, { method: 'GET' });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} - ${response.statusText}`);
+                }
+
+                const imageBlob = await response.blob();
+                const imageUrl = URL.createObjectURL(imageBlob);
+                resultImage.src = imageUrl;
+                status.textContent = 'Image generated successfully!';
+
+                downloadBtn.classList.remove('hidden');
+                regenerateBtn.classList.remove('hidden');
+
+                downloadBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.download = `generated-image-${prompt.slice(0, 20).replace(/\s+/g, '-')}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            } catch (error) {
+                status.textContent = `Error: ${error.message}. Please check console for details.`;
+                console.error('Full error:', error);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Image';
+            }
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value.trim() || 'A random beautiful landscape';
+            if (!prompt) return;
+            currentPrompt = prompt;
+            await generateImage(prompt);
+        });
+
+        regenerateBtn.addEventListener('click', async () => {
+            if (!currentPrompt) return;
+            await generateImage(currentPrompt);
+        });
+    </script>
+</body>
+  </html>
