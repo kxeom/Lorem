@@ -3,36 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sui Testnet Web3</title>
+    <title>Sui Testnet Web3 Stylish</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #00b4d8;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0077b6;
+        }
+        #walletAddress {
+            margin-top: 20px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            word-break: break-all;
+            max-width: 80%;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Sambung ke Sui Testnet</h1>
     <button onclick="connectWallet()">Connect Wallet</button>
     <p id="walletAddress">Alamat Wallet: Belum terkoneksi</p>
 
-    <!-- Masukin library Sui SDK -->
+    <!-- Library Sui JS -->
     <script src="https://cdn.jsdelivr.net/npm/@mysten/sui.js@latest/dist/index.js"></script>
     <script>
-        // Fungsi buat connect wallet
+        const { SuiClient } = window.sui;
+
         async function connectWallet() {
             try {
-                // Cek kalau Sui Wallet ada
+                // Cek apakah Sui Wallet ada
                 if (!window.suiWallet) {
-                    alert("Install Sui Wallet dulu bro!");
+                    alert("Sui Wallet gak ketemu bro! Install dulu di browser yang support (misalnya Kiwi Browser) atau cek setting-nya.");
                     return;
                 }
 
-                // Minta akses ke wallet
-                const accounts = await window.suiWallet.getAccounts();
+                // Minta izin koneksi
+                const accounts = await window.suiWallet.requestPermissions();
                 const address = accounts[0];
                 document.getElementById("walletAddress").innerText = `Alamat Wallet: ${address}`;
 
-                // Sambung ke Sui Testnet
-                const provider = new window.sui.SuiClient({
+                // Konfigurasi Sui Testnet
+                const provider = new SuiClient({
                     url: "https://fullnode.testnet.sui.io:443"
                 });
 
-                alert("Berhasil konek ke Sui Testnet!");
+                alert("Konek ke Sui Testnet berhasil bro!");
             } catch (error) {
                 console.error(error);
                 alert("Gagal konek: " + error.message);
