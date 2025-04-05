@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sui Testnet Web3</title>
+</head>
+<body>
+    <h1>Sambung ke Sui Testnet</h1>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <p id="walletAddress">Alamat Wallet: Belum terkoneksi</p>
+
+    <!-- Masukin library Sui SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@mysten/sui.js@latest/dist/index.js"></script>
+    <script>
+        // Fungsi buat connect wallet
+        async function connectWallet() {
+            try {
+                // Cek kalau Sui Wallet ada
+                if (!window.suiWallet) {
+                    alert("Install Sui Wallet dulu bro!");
+                    return;
+                }
+
+                // Minta akses ke wallet
+                const accounts = await window.suiWallet.getAccounts();
+                const address = accounts[0];
+                document.getElementById("walletAddress").innerText = `Alamat Wallet: ${address}`;
+
+                // Sambung ke Sui Testnet
+                const provider = new window.sui.SuiClient({
+                    url: "https://fullnode.testnet.sui.io:443"
+                });
+
+                alert("Berhasil konek ke Sui Testnet!");
+            } catch (error) {
+                console.error(error);
+                alert("Gagal konek: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
