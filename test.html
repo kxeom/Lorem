@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sui Testnet Web3 Stylish</title>
-    <!-- Import Wallet Kit UI buat popup -->
-    <script type="module" src="https://unpkg.com/@mysten/wallet-kit@latest/dist/index.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -49,35 +47,53 @@
 </head>
 <body>
     <h1>Sambung ke Sui Testnet</h1>
-    <!-- Ganti tombol biasa jadi Wallet Kit button -->
-    <connect-wallet-button></connect-wallet-button>
+    <button onclick="connectWallet()">Connect Wallet</button>
     <p id="walletAddress">Alamat Wallet: Belum terkoneksi</p>
 
-    <script type="module">
-        import { WalletProvider, ConnectButton } from 'https://unpkg.com/@mysten/wallet-kit@latest/dist/index.js';
+    <!-- Library Sui JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@mysten/sui.js@latest/dist/index.js"></script>
+    <script>
+        const { SuiClient } = window.sui;
 
-        // Inisialisasi WalletProvider
-        const walletProvider = new WalletProvider({
-            network: 'testnet', // Set ke Testnet
-            suiClientOptions: {
-                url: 'https://fullnode.testnet.sui.io:443',
-            },
-        });
+        async function connectWallet() {
+            try {
+                // Coba deteksi semua wallet yang support Sui
+                const wallets = window.getSuiWallets ? window.getSuiWallets() : [];
+                console.log("Wallets detected:", wallets);
 
-        // Custom ConnectButton
-        const connectButton = document.querySelector('connect-wallet-button');
-        connectButton.addEventListener('wallet-connected', async (event) => {
-            const wallet = event.detail.wallet;
-            const accounts = await wallet.getAccounts();
-            const address = accounts[0];
-            document.getElementById('walletAddress').innerText = `Alamat Wallet: ${address}`;
-            alert('Konek ke Sui Testnet berhasil bro!');
-        });
+                if (wallets.length === 0) {
+                    alert("Gak ada wallet Sui yang terdeteksi bro! Install Sui Wallet di Kiwi Browser.");
+                    return;
+                }
 
-        connectButton.addEventListener('wallet-disconnected', () => {
-            document.getElementById('walletAddress').innerText = 'Alamat Wallet: Belum terkoneksi';
-            alert('Wallet terputus bro!');
-        });
+                // Ambil wallet pertama (biasanya Sui Wallet)
+                const wallet = wallets[0];
+                if (!wallet) {
+                    alert("Wallet gak ketemu bro!");
+                    return;
+                }
+
+                // Minta izin koneksi (ini bakal munculin popup)
+                const accounts = await wallet.connect();
+                if (!accounts || accounts.length === 0) {
+                    alert("Gak dapet akun bro, coba cek wallet-nya!");
+                    return;
+                }
+
+                const address = accounts[0];
+                document.getElementById("walletAddress").innerText = `Alamat Wallet: ${address}`;
+
+                // Konfigurasi Sui Testnet
+                const provider = new SuiClient({
+                    url: "https://fullnode.testnet.sui.io:443"
+                });
+
+                alert("Konek ke Sui Testnet berhasil bro!");
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Gagal konek: " + error.message);
+            }
+        }
     </script>
 </body>
 </html>
