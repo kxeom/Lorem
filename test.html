@@ -57,14 +57,21 @@
 
         async function connectWallet() {
             try {
-                // Cek apakah Sui Wallet ada
+                // Debug: Cek apakah window.suiWallet ada
+                console.log("Cek window.suiWallet:", window.suiWallet);
                 if (!window.suiWallet) {
-                    alert("Sui Wallet gak ketemu bro! Install dulu di browser yang support (misalnya Kiwi Browser) atau cek setting-nya.");
+                    alert("Sui Wallet gak ketemu bro! Pastiin udah install extension Sui Wallet di Kiwi Browser dan aktifin Testnet.");
                     return;
                 }
 
-                // Minta izin koneksi
+                // Debug: Cek permission
+                console.log("Minta izin ke Sui Wallet...");
                 const accounts = await window.suiWallet.requestPermissions();
+                if (!accounts || accounts.length === 0) {
+                    alert("Gak dapet akun bro, coba cek wallet-nya!");
+                    return;
+                }
+
                 const address = accounts[0];
                 document.getElementById("walletAddress").innerText = `Alamat Wallet: ${address}`;
 
@@ -75,7 +82,7 @@
 
                 alert("Konek ke Sui Testnet berhasil bro!");
             } catch (error) {
-                console.error(error);
+                console.error("Error:", error);
                 alert("Gagal konek: " + error.message);
             }
         }
