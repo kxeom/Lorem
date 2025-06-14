@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Downloader - Neobrutalism</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'Courier New', 'monospace'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        'neon-green': '#00ff41',
+                        'neon-pink': '#ff0080',
+                        'neon-blue': '#0080ff',
+                        'neon-yellow': '#ffff00',
+                        'dark-bg': '#0a0a0a',
+                        'brutal-black': '#000000',
+                        'brutal-white': '#ffffff'
+                    },
+                    boxShadow: {
+                        'brutal': '8px 8px 0px 0px #000000',
+                        'brutal-lg': '12px 12px 0px 0px #000000',
+                        'brutal-neon': '8px 8px 0px 0px #00ff41',
+                        'brutal-pink': '8px 8px 0px 0px #ff0080',
+                        'brutal-blue': '8px 8px 0px 0px #0080ff'
+                    },
+                    animation: {
+                        'glitch': 'glitch 2s infinite',
+                        'pulse-neon': 'pulse-neon 2s infinite',
+                        'bounce-brutal': 'bounce-brutal 1s infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            10% { transform: translate(-2px, -2px); }
+            20% { transform: translate(2px, 2px); }
+            30% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            70% { transform: translate(-2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            90% { transform: translate(-2px, -2px); }
+        }
+        
+        @keyframes pulse-neon {
+            0%, 100% { box-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 60px #00ff41; }
+            50% { box-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 30px #00ff41; }
+        }
+        
+        @keyframes bounce-brutal {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .brutal-border {
+            border: 4px solid #000000;
+        }
+        
+        .brutal-input {
+            border: 4px solid #000000;
+            box-shadow: 6px 6px 0px 0px #000000;
+            transition: all 0.2s ease;
+        }
+        
+        .brutal-input:focus {
+            outline: none;
+            box-shadow: 8px 8px 0px 0px #00ff41;
+            border-color: #00ff41;
+        }
+        
+        .brutal-btn {
+            border: 4px solid #000000;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brutal-btn:hover {
+            transform: translate(-2px, -2px);
+        }
+        
+        .brutal-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #000000;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: loading-dots 1.5s infinite;
+        }
+        
+        @keyframes loading-dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .result-card {
+            background: linear-gradient(45deg, #ffffff 0%, #f0f0f0 100%);
+            border: 4px solid #000000;
+            box-shadow: 12px 12px 0px 0px #000000;
+        }
+        
+        .glitch-text {
+            position: relative;
+        }
+        
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch-text::before {
+            animation: glitch 2s infinite;
+            color: #ff0080;
+            z-index: -1;
+        }
+        
+        .glitch-text::after {
+            animation: glitch 2s infinite reverse;
+            color: #0080ff;
+            z-index: -2;
+        }
+    </style>
+</head>
+<body class="bg-neon-yellow min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-brutal-black brutal-border border-b-8 p-6 mb-8">
+        <div class="container mx-auto">
+            <h1 class="text-4xl md:text-6xl font-black text-neon-green glitch-text animate-glitch" data-text="INSTA DOWNLOADER">
+                INSTA DOWNLOADER
+            </h1>
+            <p class="text-brutal-white font-mono text-lg mt-2">
+                >> DOWNLOAD INSTAGRAM VIDEOS & PHOTOS INSTANTLY
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pb-12">
+        <!-- Input Section -->
+        <div class="bg-brutal-white brutal-border shadow-brutal-lg p-8 mb-8 max-w-4xl mx-auto">
+            <div class="mb-6">
+                <h2 class="text-3xl font-black mb-4 text-brutal-black">
+                    PASTE INSTAGRAM URL HERE
+                </h2>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input 
+                        type="url" 
+                        id="instagramUrl" 
+                        placeholder="https://www.instagram.com/p/..." 
+                        class="brutal-input flex-1 px-6 py-4 text-lg font-mono bg-brutal-white text-brutal-black placeholder-gray-500"
+                    >
+                    <button 
+                        id="downloadBtn" 
+                        class="brutal-btn bg-neon-pink text-brutal-white px-8 py-4 font-black text-lg shadow-brutal hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span id="btnText">DOWNLOAD NOW!</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="bg-neon-blue brutal-border p-4 mb-4">
+                <h3 class="font-black text-brutal-white mb-2">HOW TO USE:</h3>
+                <ul class="text-brutal-white font-mono text-sm space-y-1">
+                    <li>1. Copy Instagram post/reel/story URL</li>
+                    <li>2. Paste it in the input field above</li>
+                    <li>3. Click DOWNLOAD NOW button</li>
+                    <li>4. Wait for the magic to happen!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div id="loadingSection" class="hidden bg-brutal-black brutal-border shadow-brutal-neon p-8 mb-8 max-w-4xl mx-auto">
+            <div class="text-center">
+                <div class="text-neon-green text-4xl font-black mb-4 animate-pulse-neon">
+                    PROCESSING<span class="loading-dots"></span>
+                </div>
+                <div class="bg-neon-green h-4 brutal-border overflow-hidden">
+                    <div class="bg-brutal-black h-full animate-pulse"></div>
+                </div>
+                <p class="text-neon-green font-mono mt-4">Fetching your content from Instagram...</p>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="errorSection" class="hidden bg-red-500 brutal-border shadow-brutal p-8 mb-8 max-w-4xl mx-auto">
+            <div class="text-center">
+                <h3 class="text-3xl font-black text-brutal-white mb-4">ERROR!</h3>
+                <p id="errorMessage" class="text-brutal-white font-mono text-lg"></p>
+                <button id="retryBtn" class="brutal-btn bg-brutal-white text-brutal-black px-6 py-3 font-black mt-4 shadow-brutal">
+                    TRY AGAIN
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden max-w-4xl mx-auto">
+            <div class="result-card p-8 mb-8">
+                <h2 class="text-3xl font-black mb-6 text-brutal-black">DOWNLOAD READY!</h2>
+                
+                <!-- Media Preview -->
+                <div id="mediaPreview" class="mb-6"></div>
+                
+                <!-- Metadata -->
+                <div id="metadata" class="bg-neon-yellow brutal-border p-4 mb-6">
+                    <h3 class="font-black text-brutal-black mb-2">POST INFO:</h3>
+                    <div id="metadataContent" class="font-mono text-sm text-brutal-black"></div>
+                </div>
+                
+                <!-- Download Buttons -->
+                <div id="downloadButtons" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mt-12">
+            <div class="bg-neon-green brutal-border shadow-brutal p-6 hover:shadow-brutal-lg transition-all duration-200 hover:-translate-y-1">
+                <h3 class="text-2xl font-black text-brutal-black mb-3">FAST & FREE</h3>
+                <p class="text-brutal-black font-mono">Download Instagram content at lightning speed without any cost!</p>
+            </div>
+            
+            <div class="bg-neon-pink brutal-border shadow-brutal p-6 hover:shadow-brutal-lg transition-all duration-200 hover:-translate-y-1">
+                <h3 class="text-2xl font-black text-brutal-white mb-3">HIGH QUALITY</h3>
+                <p class="text-brutal-white font-mono">Get the best quality videos and images available on Instagram!</p>
+            </div>
+            
+            <div class="bg-neon-blue brutal-border shadow-brutal p-6 hover:shadow-brutal-lg transition-all duration-200 hover:-translate-y-1">
+                <h3 class="text-2xl font-black text-brutal-white mb-3">NO WATERMARK</h3>
+                <p class="text-brutal-white font-mono">Clean downloads without any watermarks or branding!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brutal-black brutal-border border-t-8 p-6 mt-12">
+        <div class="container mx-auto text-center">
+            <p class="text-neon-green font-mono text-lg">
+                Made with ❤️ for the Instagram community
+            </p>
+            <p class="text-brutal-white font-mono text-sm mt-2">
+                Powered by FerDev API
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        class InstagramDownloader {
+            constructor() {
+                this.apiUrl = 'https://api.ferdev.my.id/downloader/instagram?link=';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                const downloadBtn = document.getElementById('downloadBtn');
+                const retryBtn = document.getElementById('retryBtn');
+                const urlInput = document.getElementById('instagramUrl');
+
+                downloadBtn.addEventListener('click', () => this.handleDownload());
+                retryBtn.addEventListener('click', () => this.resetForm());
+                
+                urlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleDownload();
+                    }
+                });
+
+                urlInput.addEventListener('input', () => {
+                    this.resetForm();
+                });
+            }
+
+            async handleDownload() {
+                const url = document.getElementById('instagramUrl').value.trim();
+                
+                if (!url) {
+                    this.showError('Please enter an Instagram URL!');
+                    return;
+                }
+
+                if (!this.isValidInstagramUrl(url)) {
+                    this.showError('Please enter a valid Instagram URL!');
+                    return;
+                }
+
+                this.showLoading();
+                
+                try {
+                    const response = await fetch(`${this.apiUrl}${encodeURIComponent(url)}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.data.success) {
+                        this.showResults(data.data);
+                    } else {
+                        throw new Error('Failed to fetch Instagram content');
+                    }
+                } catch (error) {
+                    console.error('Download error:', error);
+                    this.showError('Failed to download content. Please check the URL and try again!');
+                }
+            }
+
+            isValidInstagramUrl(url) {
+                const instagramRegex = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\/[A-Za-z0-9_-]+\/?/;
+                return instagramRegex.test(url);
+            }
+
+            showLoading() {
+                this.hideAllSections();
+                document.getElementById('loadingSection').classList.remove('hidden');
+                document.getElementById('downloadBtn').disabled = true;
+                document.getElementById('btnText').textContent = 'PROCESSING...';
+            }
+
+            showError(message) {
+                this.hideAllSections();
+                document.getElementById('errorSection').classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = message;
+                this.resetButton();
+            }
+
+            showResults(data) {
+                this.hideAllSections();
+                document.getElementById('resultsSection').classList.remove('hidden');
+                this.renderResults(data);
+                this.resetButton();
+            }
+
+            renderResults(data) {
+                this.renderMediaPreview(data);
+                this.renderMetadata(data);
+                this.renderDownloadButtons(data);
+            }
+
+            renderMediaPreview(data) {
+                const previewContainer = document.getElementById('mediaPreview');
+                previewContainer.innerHTML = '';
+
+                if (data.thumbnailUrl) {
+                    const img = document.createElement('img');
+                    img.src = data.thumbnailUrl;
+                    img.alt = 'Instagram content preview';
+                    img.className = 'w-full max-w-md mx-auto brutal-border shadow-brutal rounded-none';
+                    previewContainer.appendChild(img);
+                }
+            }
+
+            renderMetadata(data) {
+                const metadataContainer = document.getElementById('metadataContent');
+                const metadata = data.metadata;
+                
+                metadataContainer.innerHTML = `
+                    <div class="space-y-2">
+                        <div><strong>Username:</strong> @${metadata.username}</div>
+                        <div><strong>Type:</strong> ${data.type.toUpperCase()}</div>
+                        <div><strong>Likes:</strong> ${metadata.likeCount.toLocaleString()}</div>
+                        <div><strong>Comments:</strong> ${metadata.commentCount.toLocaleString()}</div>
+                        <div><strong>Posted:</strong> ${new Date(metadata.takenAt * 1000).toLocaleDateString()}</div>
+                        ${metadata.title ? `<div><strong>Caption:</strong> ${this.truncateText(metadata.title, 100)}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            renderDownloadButtons(data) {
+                const buttonsContainer = document.getElementById('downloadButtons');
+                buttonsContainer.innerHTML = '';
+
+                // Video downloads
+                if (data.videoUrls && data.videoUrls.length > 0) {
+                    data.videoUrls.forEach((video, index) => {
+                        const button = this.createDownloadButton(
+                            `DOWNLOAD ${video.name || 'VIDEO'} (${video.ext.toUpperCase()})`,
+                            video.url,
+                            `instagram_video_${index + 1}.${video.ext}`,
+                            'bg-neon-pink'
+                        );
+                        buttonsContainer.appendChild(button);
+                    });
+                }
+
+                // Thumbnail download
+                if (data.thumbnailUrl) {
+                    const button = this.createDownloadButton(
+                        'DOWNLOAD THUMBNAIL (JPG)',
+                        data.thumbnailUrl,
+                        'instagram_thumbnail.jpg',
+                        'bg-neon-blue'
+                    );
+                    buttonsContainer.appendChild(button);
+                }
+            }
+
+            createDownloadButton(text, url, filename, bgColor) {
+                const button = document.createElement('button');
+                button.className = `brutal-btn ${bgColor} text-brutal-white px-6 py-4 font-black text-lg shadow-brutal w-full hover:opacity-90`;
+                button.textContent = text;
+                
+                button.addEventListener('click', () => {
+                    this.downloadFile(url, filename);
+                });
+
+                return button;
+            }
+
+            async downloadFile(url, filename) {
+                try {
+                    // Create a temporary link element
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    link.target = '_blank';
+                    
+                    // Trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Show success feedback
+                    this.showToast('Download started!', 'success');
+                } catch (error) {
+                    console.error('Download error:', error);
+                    this.showToast('Download failed. Please try again.', 'error');
+                }
+            }
+
+            showToast(message, type) {
+                const toast = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-neon-green' : 'bg-red-500';
+                
+                toast.className = `fixed top-4 right-4 ${bgColor} brutal-border shadow-brutal p-4 font-black text-brutal-black z-50 animate-bounce-brutal`;
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 3000);
+            }
+
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+
+            hideAllSections() {
+                document.getElementById('loadingSection').classList.add('hidden');
+                document.getElementById('errorSection').classList.add('hidden');
+                document.getElementById('resultsSection').classList.add('hidden');
+            }
+
+            resetForm() {
+                this.hideAllSections();
+                this.resetButton();
+            }
+
+            resetButton() {
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('btnText').textContent = 'DOWNLOAD NOW!';
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new InstagramDownloader();
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.querySelector('.cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cursor fixed w-4 h-4 bg-neon-green brutal-border pointer-events-none z-50 mix-blend-difference';
+                document.body.appendChild(newCursor);
+            }
+        });
+
+        // Add glitch effect to title on hover
+        document.addEventListener('DOMContentLoaded', () => {
+            const title = document.querySelector('.glitch-text');
+            title.addEventListener('mouseenter', () => {
+                title.style.animation = 'glitch 0.3s infinite';
+            });
+            title.addEventListener('mouseleave', () => {
+                title.style.animation = 'glitch 2s infinite';
+            });
+        });
+    </script>
+</body>
+</html>
